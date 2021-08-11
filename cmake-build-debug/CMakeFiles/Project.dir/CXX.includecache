@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../Include/disk.h
+
+../Include/ram.h
+
+C:/C++/Project/src/disk.cpp
+fstream
+-
+iostream
+-
+disk.h
+C:/C++/Project/src/disk.h
+ram.h
+C:/C++/Project/src/ram.h
+
