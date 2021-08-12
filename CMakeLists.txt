@@ -20,5 +20,3 @@ add_executable(Project
         )
 
 target_include_directories(Project PUBLIC Include)
-
-

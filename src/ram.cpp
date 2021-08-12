@@ -1,9 +1,9 @@
 #include "ram.h"
 
 int buffer[8];
+int mas[8];
 
 int* read() {
-    int mas[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
     for (int i = 0; i < 8; i++) {
     mas[i] = buffer[i];
     }
@@ -11,8 +11,8 @@ int* read() {
     return m;
 }
 
-void write(int* mas) {
+void write(int* m) {
     for (int i = 0; i < 8; i++) {
-    buffer[i] = *(mas + i);
+    buffer[i] = *(m + i);
     }
 }
