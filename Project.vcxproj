@@ -139,13 +139,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Project.cpp" />
-    <ClCompile Include="src\cpu.cpp" />
-    <ClCompile Include="src\disk.cpp" />
-    <ClCompile Include="src\gpu.cpp" />
-    <ClCompile Include="src\kbd.cpp" />
-    <ClCompile Include="src\ram.cpp" />
-    <ClCompile Include="Кол разн знаков в строке.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="coordinates.h" />
