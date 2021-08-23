@@ -1,33 +1,7 @@
-﻿#include <algorithm>
-#include <chrono>
-#include <climits>
-#include <cmath>
-#include <conio.h>
-#include <cstdio>
-#include <cstdlib>
-#include <ctime>
-#include <deque> 
-#include <fstream>
-#include <iomanip>
+﻿#include <climits>
 #include <iostream>
-#include <iterator>
-#include <locale.h>
-#include <map>
-#include <math.h>
-#include <set>
-#include <stdlib.h>
-#include <sstream>
 #include <string>
-#include <thread>
 #include <vector>
-#include <cwchar>
-//#include <windows.h>
-
-//using namespace std;
-//setlocale(LC_ALL, "RUS");
-//SetConsoleCP(1251);
-//SetConsoleOutputCP(1251);
-//#pragma warning(disable : 4996)
 
 class Track {
 public:
@@ -38,7 +12,9 @@ public:
 };
 
 class Player {
-	
+
+private:
+
 	std::vector<Track> single = { {"Matilda Mother", "Pink Floyd", "05.08.1967", 188},
 						{"Remember a Day", "Pink Floyd", "29.06.1968", 273},
 						{"Cirrus Minor", "Pink Floyd", "27.07.1969", 318},
@@ -111,6 +87,8 @@ public:
 		std::cout << "Enter the duration of the song: ";
 		std::cin >> track->playingTime;
 		single.push_back(*track);
+		delete track;
+		track = nullptr;
 	}
 };
 
@@ -120,8 +98,8 @@ int main() {
 	do {
 		do {
 			std::cout << "Enter the command: ";
-			std::getline(std::cin, command);
-			//std::cin >> command;
+			std::cin >> command;
+			std::cin.ignore(std::numeric_limits<int>::max(), '\n');
 			if (command != "play" && command != "pause" && command != "next" && command != "stop" && command != "add" && command != "exit") {
 				std::cout << "The command is not correct!\n";
 			}
@@ -131,23 +109,25 @@ int main() {
 			player->play();
 		}
 
-		if (command == "pause") {
+		else if (command == "pause") {
 			player->pause();
 		}
 
-		if (command == "next") {
+		else if (command == "next") {
 			player->next();
 		}
 
-		if (command == "stop") {
+		else if (command == "stop") {
 			player->stop();
 		}
 
-		if (command == "add") {
+		else if (command == "add") {
 			player->add();
 		}
 
-		if (command == "exit") {
+		else if (command == "exit") {
+			delete player;
+			player = nullptr;
 			return 0;
 		}
 	} while (true);
