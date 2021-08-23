@@ -134,10 +134,9 @@ int main() {
 			screen.output(window->getCoordinateX(), window->getCoordinateY(), window->getWidth(), window->getHeight());
 		}
 		else if (command == "close") {
+			delete window;
+			window = nullptr;
 			return 0;
 		}
 	} while (true);
-	
-	delete window;
-	window = nullptr;
 }
