@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <string>
 #include <vector>
+#include <limits>
 
 class Contact {
 public:
@@ -10,6 +11,8 @@ public:
 
 class Phone {
 
+private:
+	
 	std::vector<Contact> addressBook;
 
 public:
@@ -21,6 +24,8 @@ public:
 		std::cout << "Enter the name of the subscriber: ";
 		std::getline(std::cin, contact->name);
 		addressBook.push_back(*contact);
+		delete contact;
+		contact = nullptr;
 	}
 
 	void call() {
@@ -58,8 +63,8 @@ int main() {
 	do {
 		do {
 			std::cout << "Enter the command: ";
-			std::getline(std::cin, command);
-			//std::cin >> command;
+			std::cin >> command;
+			std::cin.ignore(std::numeric_limits<int>::max(), '\n');
 			if (command != "call" && command != "sms" && command != "add" && command != "exit") {
 				std::cout << "The command is not correct!\n";
 			}
@@ -69,14 +74,16 @@ int main() {
 			phone->add();
 		}
 
-		if (command == "call") {
+		else if (command == "call") {
 			phone->call();
 		}
 
-		if (command == "sms") {
+		else if (command == "sms") {
 			phone->sms();
 		}
-		if (command == "exit") {
+		else if (command == "exit") {
+			delete phone;
+			phone = nullptr;
 			return 0;
 		}
 	} while (true);
