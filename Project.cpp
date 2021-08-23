@@ -107,7 +107,6 @@ int main() {
 	do {
 		do {
 			std::cout << "Enter the command: ";
-			//std::getline(std::cin, command);
 			std::cin >> command;
 			if (command != "move" && command != "resize" && command != "display" && command != "close") {
 				std::cout << "The command is not correct!\n";
@@ -122,7 +121,7 @@ int main() {
 			std::cout << "Current window coordinates: " << window->getCoordinateX() - 2 << ", " << window->getCoordinateY() - 1 << ".\n";
 		}
 
-		if (command == "resize") {
+		else if (command == "resize") {
 			int newW = 0, newH = 0;
 			std::cout << "Enter the width and height of the window: ";
 			std::cin >> newW >> newH;
@@ -130,12 +129,15 @@ int main() {
 			std::cout << "Window width: " << window->getWidth() << ", window height: " << window->getHeight() << ".\n";
 		}
 
-		if (command == "display") {
+		else if (command == "display") {
 			Screen screen;
 			screen.output(window->getCoordinateX(), window->getCoordinateY(), window->getWidth(), window->getHeight());
 		}
-		if (command == "close") {
+		else if (command == "close") {
 			return 0;
 		}
 	} while (true);
+	
+	delete window;
+	window = nullptr;
 }
