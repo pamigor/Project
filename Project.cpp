@@ -69,14 +69,14 @@ public:
 };
 
 class Village {
-	Tree** trees;
+	std::vector<Tree*> trees;
 
 public:
 	
 	Village() {
-		trees = new Tree*[5];
 		for (int i = 0; i < 5; i++) {
-			trees[i] = new Tree();
+			Tree* tree = new Tree();
+			trees.push_back(tree);
 		}
 	}
 
@@ -87,6 +87,12 @@ public:
 			}
 		}
 		return nullptr;
+	}
+
+	void delete_trees() {
+		for (int i = 0; i < 5; i++) {
+			delete trees[i];
+		}
 	}
 };
 
@@ -105,6 +111,8 @@ int main() {
 		std::cout << "Neighbors of an elf named " << nameElf << ": ";
 		elf->elf_neighbors(nameElf);
 	}
+	
+	village->delete_trees();
 	delete village;
 	village = nullptr;
 }
