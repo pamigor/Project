@@ -3,12 +3,59 @@
 #include <ctime>
 #include <iostream>
 
-class Command {
+class Worker {
+	bool employmentIndicator = false;
+	char taskType = ' ';
+
+public:
+
+	Worker() {
+		
+	}
+
+	Worker(bool inEmploymentIndicator, char inTaskType) : employmentIndicator(inEmploymentIndicator), taskType(inTaskType) {
+	}
+
+	bool get_employment_indicator() {
+		return employmentIndicator;
+	}
+};
+
+class Manager {
 	int numberManager = 0;
-	int numberPeople = 0;
-	int numberPeopleEmployed = 0;
-	bool employmentIndicator = true;
-	char* people = nullptr;
+
+public:
+
+	Manager(int inNumberManager) : numberManager(inNumberManager) {
+	}
+
+	void distribution_tasks() {
+		char taskType[] = { 'A', 'B', 'C' };
+		int j = std::rand() % 3;
+		Worker* worker;
+		if (worker->get_employment_indicator() == false) {
+			Worker* worker = new Worker(true, taskType[j]);
+		}
+	}
+
+};
+
+class Command : public Manager {
+	int numberWorkers = 0;
+	int numberWorkersEmployed = 0;
+	Worker** workers = nullptr;
+
+	Command(int inNumberManager, int inNumberWorkers) : Manager(inNumberManager), numberWorkers(inNumberWorkers) {
+		workers = new Worker*[numberWorkers];
+
+	}
+};
+
+class HeadCompany {
+	int numberCommand = 0;
+	Command* companyStructure = nullptr;
+
+};
 
 public:
 
@@ -24,26 +71,7 @@ public:
 		return numberTask;
 	}
 
-	void distribution_tasks(int numberTask) {
-		char taskType[] = { 'A', 'B', 'C' };
-		if (numberTask > numberPeople - numberPeopleEmployed) {
-			numberTask = numberPeople - numberPeopleEmployed;
-		}
-		
-		for (int i = numberPeopleEmployed; i < numberPeopleEmployed + numberTask; i++) {
-			int j = std::rand() % 3;
-			people[i] = taskType[j];
-		}
-		numberPeopleEmployed += numberTask;
-		
-		if (numberPeople == numberPeopleEmployed) {
-			employmentIndicator = false;
-		}
-	}
 
-	bool get_employment_indicator() {
-		return employmentIndicator;
-	}
 };
 
 class Company {
