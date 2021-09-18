@@ -2,22 +2,14 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <vector>
 
 class Worker {
-	bool employmentIndicator = false;
 	char taskType = ' ';
 
 public:
 
-	Worker() {
-		
-	}
-
-	Worker(bool inEmploymentIndicator, char inTaskType) : employmentIndicator(inEmploymentIndicator), taskType(inTaskType) {
-	}
-
-	bool get_employment_indicator() {
-		return employmentIndicator;
+	Worker(char inTaskType) : taskType(inTaskType) {
 	}
 };
 
@@ -29,102 +21,123 @@ public:
 	Manager(int inNumberManager) : numberManager(inNumberManager) {
 	}
 
-	void distribution_tasks() {
+	char type_task() {
 		char taskType[] = { 'A', 'B', 'C' };
 		int j = std::rand() % 3;
-		Worker* worker;
-		if (worker->get_employment_indicator() == false) {
-			Worker* worker = new Worker(true, taskType[j]);
-		}
+		return taskType[j];
 	}
 
+	int selecting_tasks(int commandHeadCompany) {
+		int numberTask = numberManager + commandHeadCompany;
+		numberTask = std::rand() % numberTask + 1;
+		return numberTask;
+	}
 };
 
 class Command : public Manager {
 	int numberWorkers = 0;
-	int numberWorkersEmployed = 0;
-	Worker** workers = nullptr;
+	int numberEmployeesWorkers = 0;
+	bool employmentIndicator = false;
+	std::vector<Worker*> workers;
 
-	Command(int inNumberManager, int inNumberWorkers) : Manager(inNumberManager), numberWorkers(inNumberWorkers) {
-		workers = new Worker*[numberWorkers];
+public:
 
+	Command(int inNumberManager) : Manager(inNumberManager) {
+		std::cout << "Enter the number of employees in " << inNumberManager << " team: ";
+		int inNumberWorkers = 0;
+		std::cin >> inNumberWorkers;
+		set_number_workers(inNumberWorkers);
+	}
+
+	void distribution_tasks(int commandHeadCompany) {
+		int numberTasks = selecting_tasks(commandHeadCompany);
+		if (selecting_tasks(commandHeadCompany) > (numberWorkers - numberEmployeesWorkers)) {
+			numberTasks = numberWorkers - numberEmployeesWorkers;
+		}
+		for (int i = 0; i < numberTasks; i++) {
+			Worker* worker = new Worker(type_task());
+			workers.push_back(worker);
+		}
+		numberEmployeesWorkers += numberTasks;
+		if (numberWorkers == numberEmployeesWorkers) {
+			employmentIndicator = true;
+		}
+	}
+
+	void set_number_workers(int inNumberWorkers) {
+		numberWorkers = inNumberWorkers;
+	}
+
+	bool get_employment_indicator() {
+		return employmentIndicator;
+	}
+
+	void delete_workers() {
+		for (int i = 0; i < numberWorkers; i++) {
+			delete workers[i];
+		}
 	}
 };
 
 class HeadCompany {
 	int numberCommand = 0;
-	Command* companyStructure = nullptr;
-
-};
+	std::vector<Command*> companyStructure;
 
 public:
 
-	Command(int inNumberPeople, int inNumberManager) : numberPeople(inNumberPeople), numberManager(inNumberManager) {
-		assert(inNumberPeople > 0);
-		assert(inNumberManager > 0);
-		people = new char[numberPeople];
-	}
-
-	int selecting_tasks(int commandManager) {
-		int numberTask = numberManager + commandManager;
-		numberTask = std::rand() % numberTask + 1;
-		return numberTask;
-	}
-
-
-};
-
-class Company {
-	
-	int numberCommand;
-	Command** companyStructure = nullptr;
-
-public:
-
-	Company(int inNumberCommand) : numberCommand(inNumberCommand) {
-		assert(inNumberCommand > 0);
-		companyStructure = new Command * [inNumberCommand];
+	HeadCompany(int inNumberCommand) : numberCommand(inNumberCommand) {
 		for (int i = 0; i < numberCommand; i++) {
-			std::cout << "Enter the number of employees in " << i + 1 << " team: ";
-			int inNumberPeople = 0;
-			std::cin >> inNumberPeople;
-			companyStructure[i] = new Command(inNumberPeople, i + 1);
+			Command* command = new Command(i + 1);
+			companyStructure.push_back(command);
 		}
 	}
 
-	Command* get_company_structure(int index) {
-		if ((index < 0) || (index > numberCommand)) {
-			return nullptr;
+	void instructions_head_company() {
+		int instruction = 0;
+		std::cout << "Enter the supervisor's instruction: ";
+		std::cin >> instruction;
+		for (int i = 0; i < numberCommand; i++) {
+			if (companyStructure[i]->get_employment_indicator() == false) {
+				companyStructure[i]->distribution_tasks(instruction);
+			}
 		}
-		return companyStructure[index];
+	}
+
+	int checking_workload() {
+		int counter = 0;
+		for (int i = 0; i < numberCommand; i++) {
+			if (companyStructure[i]->get_employment_indicator() == true) {
+				counter++;
+			}
+		}
+		return counter;
+	}
+
+	void delete_command() {
+		for (int i = 0; i < numberCommand; i++) {
+			companyStructure[i]->delete_workers();
+			delete companyStructure[i];
+		}
 	}
 };
 
 int main() {
 	std::srand(std::time(nullptr));
 	int numberCommand;
-	bool flag = false;
+	int counter = 0;
 	std::cout << "Enter the number of commands: ";
 	std::cin >> numberCommand;
-	Company* company = new Company(numberCommand);
+	HeadCompany* headCompany = new HeadCompany(numberCommand);
 
 	do {
-		flag = false;
-		std::cout << "Enter the manager's command: ";
-		int commandManager;
-		std::cin >> commandManager;
-		for (int i = 0; i < numberCommand; i++) {
-			if (company->get_company_structure(i)->get_employment_indicator()) {
-				int numberTask = company->get_company_structure(i)->selecting_tasks(commandManager);
-				company->get_company_structure(i)->distribution_tasks(numberTask);
-				if (company->get_company_structure(i)->get_employment_indicator()) {
-					flag = true;
-				};
-			};
-		}
-	} while (flag);
+		counter = 0;
+		headCompany->instructions_head_company();
+		counter = headCompany->checking_workload();
+	} while (counter != numberCommand);
+	
 	std::cout << "\nTasks have been set for all employees!\n";
 	
-	delete company;
-	company = nullptr;
+	headCompany->delete_command();
+	delete headCompany;
+	headCompany = nullptr;
 }
