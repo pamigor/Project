@@ -8,10 +8,15 @@
 #include <thread>
 #include <vector>
 
+<<<<<<< HEAD
 std::mutex cout_swimmer;
 
 class Swimmer {
 
+=======
+class Swimmer {
+	
+>>>>>>> 234601ecb25dd4ba58a13dd768b0d6176130e089
 	std::string name;
 	int speed = 0;
 	int distance = 0;
@@ -20,6 +25,7 @@ class Swimmer {
 
 public:
 
+<<<<<<< HEAD
 	Swimmer(std::string inName, int inSpeed) : name(inName), speed(inSpeed) {
 		assert(inSpeed > 0);
 		rezult = (double) 100 / speed;
@@ -28,6 +34,14 @@ public:
 	void swimming() {
 		
 		cout_swimmer.lock();
+=======
+	Swimmer(std::string inName, int inSpeed): name(inName), speed(inSpeed) {
+		assert(inSpeed > 0);
+		rezult = 100 / speed;
+	};
+
+	void swimming() {
+>>>>>>> 234601ecb25dd4ba58a13dd768b0d6176130e089
 		if (distance < 100) {
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 			distance += speed;
@@ -44,16 +58,26 @@ public:
 			std::cout << name << " finished.\n";
 			start = false;
 		}
+<<<<<<< HEAD
 		cout_swimmer.unlock();
 	}
 
 	Swimmer* get_this() {
 		return this;
+=======
+	}
+
+	void flow_swimming() {
+		std::thread swimmerOne(&Swimmer::swimming, this);
+		//swimmerOne.detach();
+		swimmerOne.join();
+>>>>>>> 234601ecb25dd4ba58a13dd768b0d6176130e089
 	}
 
 	bool get_start() {
 		return start;
 	}
+<<<<<<< HEAD
 
 	double get_rezult() {
 		return rezult;
@@ -68,17 +92,29 @@ public:
 class Competitions {
 	int numberSwimmers = 6;
 	std::vector<Swimmer*> swimmers;
+=======
+};
+
+class Competitions {
+	Swimmer** swimmers = nullptr;
+>>>>>>> 234601ecb25dd4ba58a13dd768b0d6176130e089
 
 public:
 
 	Competitions() {
+<<<<<<< HEAD
 		for (int i = 0; i < numberSwimmers; i++) {
+=======
+		swimmers = new Swimmer * [3];
+		for (int i = 0; i < 3; i++) {
+>>>>>>> 234601ecb25dd4ba58a13dd768b0d6176130e089
 			std::cout << "Enter the name of " << i + 1 << " swimmer: ";
 			std::string nameSwimmer;
 			std::cin >> nameSwimmer;
 			std::cout << "Enter the speed of " << i + 1 << " swimmer: ";
 			int speedSwimmer;
 			std::cin >> speedSwimmer;
+<<<<<<< HEAD
 			Swimmer* swimmer = new Swimmer(nameSwimmer, speedSwimmer);
 			swimmers.push_back(swimmer);
 		}
@@ -143,6 +179,17 @@ public:
 			std::cout.precision(2);
 			std::cout << std::fixed << i + 1 << " st place \t" << swimmers[i]->get_name() << "\t with the result \t" << swimmers[i]->get_rezult() << " sec.\n";
 		}
+=======
+			swimmers[i] = new Swimmer(nameSwimmer, speedSwimmer);
+		}
+	}
+
+	Swimmer* get_swimmers(int index) {
+		if ((index < 0) || (index > 5)) {
+			return nullptr;
+		}
+		return swimmers[index];
+>>>>>>> 234601ecb25dd4ba58a13dd768b0d6176130e089
 	}
 };
 
@@ -150,6 +197,7 @@ public:
 int main() {
 	Competitions* competitions = new Competitions();
 	bool finish = false;
+<<<<<<< HEAD
 	std::cout << "\nSTART OF THE SWIM!!!\n\n";
 	do {
 		finish = false;
@@ -161,4 +209,39 @@ int main() {
 	competitions->delete_swimmers();
 	delete competitions;
 	competitions = nullptr;
+=======
+	do {
+		finish = false;
+		competitions->get_swimmers(0)->flow_swimming();
+		if (competitions->get_swimmers(0)->get_start() == true) {
+			finish = true;
+		}
+
+		competitions->get_swimmers(1)->flow_swimming();
+		if (competitions->get_swimmers(1)->get_start() == true) {
+			finish = true;
+		}
+
+		competitions->get_swimmers(2)->flow_swimming();
+		if (competitions->get_swimmers(2)->get_start() == true) {
+			finish = true;
+		}
+
+		//competitions->get_swimmers(3)->flow_swimming();
+		//if (competitions->get_swimmers(3)->get_start() == true) {
+		//	finish = true;
+		//}
+
+		//competitions->get_swimmers(4)->flow_swimming();
+		//if (competitions->get_swimmers(4)->get_start() == true) {
+		//	finish = true;
+		//}
+
+		//competitions->get_swimmers(5)->flow_swimming();
+		//if (competitions->get_swimmers(5)->get_start() == true) {
+		//	finish = true;
+		//}
+		std::cout << "\n";
+	} while (finish);
+>>>>>>> 234601ecb25dd4ba58a13dd768b0d6176130e089
 }
