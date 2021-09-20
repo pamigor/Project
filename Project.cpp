@@ -26,25 +26,30 @@ public:
 	};
 
 	void swimming() {
-
-		cout_swimmer.lock();
-		if (distance < 100) {
-			std::this_thread::sleep_for(std::chrono::seconds(1));
-			distance += speed;
+		do {
 			if (distance < 100) {
-				std::cout << name << " swam " << distance << " meters.\n";
-				start = true;
+				std::this_thread::sleep_for(std::chrono::seconds(1));
+				distance += speed;
+				if (distance < 100) {
+					cout_swimmer.lock();
+					std::cout << name << " swam " << distance << " meters.\n";
+					cout_swimmer.unlock();
+					start = true;
+				}
+				else {
+					cout_swimmer.lock();
+					std::cout << name << " finished.\n";
+					cout_swimmer.unlock();
+					start = false;
+				}
 			}
 			else {
+				cout_swimmer.lock();
 				std::cout << name << " finished.\n";
+				cout_swimmer.unlock();
 				start = false;
 			}
-		}
-		else {
-			std::cout << name << " finished.\n";
-			start = false;
-		}
-		cout_swimmer.unlock();
+		} while (start);
 	}
 
 	Swimmer* get_this() {
@@ -118,6 +123,7 @@ public:
 				return true;
 			}
 		}
+		std::cout << "\n";
 		return false;
 	}
 
@@ -151,15 +157,13 @@ int main() {
 	Competitions* competitions = new Competitions();
 	bool finish = false;
 	std::cout << "\nSTART OF THE SWIM!!!\n\n";
+	competitions->swimming();
 	do {
 		finish = false;
-		competitions->swimming();
 		finish = competitions->end_swimming();
 		std::cout << "\n";
 	} while (finish);
-	
 	competitions->rezults();
-	
 	competitions->delete_swimmers();
 	delete competitions;
 	competitions = nullptr;
