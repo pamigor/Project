@@ -28,25 +28,16 @@ public:
 	void swimming() {
 		do {
 			if (distance < 100) {
-				std::this_thread::sleep_for(std::chrono::seconds(1));
+				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				distance += speed;
 				if (distance < 100) {
-					cout_swimmer.lock();
-					std::cout << name << " swam " << distance << " meters.\n";
-					cout_swimmer.unlock();
 					start = true;
 				}
 				else {
-					cout_swimmer.lock();
-					std::cout << name << " finished.\n";
-					cout_swimmer.unlock();
 					start = false;
 				}
 			}
 			else {
-				cout_swimmer.lock();
-				std::cout << name << " finished.\n";
-				cout_swimmer.unlock();
 				start = false;
 			}
 		} while (start);
@@ -68,6 +59,9 @@ public:
 		return name;
 	}
 
+	int get_distance() {
+		return distance;
+	}
 };
 
 class Competitions {
@@ -89,6 +83,32 @@ public:
 		}
 	}
 
+	void output_distance() {
+		while (true) {
+			int counter = 0;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1010));
+			for (int i = 0; i < numberSwimmers; i++) {
+				if (swimmers[i]->get_distance() < 100) {
+					cout_swimmer.lock();
+					std::cout << swimmers[i]->get_name() << " swam " << swimmers[i]->get_distance() << " meters.\n";
+					cout_swimmer.unlock();
+				}
+				else {
+					cout_swimmer.lock();
+					std::cout << swimmers[i]->get_name() << " finished.\n";
+					cout_swimmer.unlock();
+				}
+				if (swimmers[i]->get_start() == false) {
+					counter++;
+				}
+			}
+			std::cout << "\n";
+			if (counter == numberSwimmers) {
+				return;
+			}
+		}
+	}
+
 	void swimming() {
 		std::thread swimmerOne(&Swimmer::swimming, swimmers[0]->get_this());
 		std::thread swimmerTwo(&Swimmer::swimming, swimmers[1]->get_this());
@@ -96,6 +116,7 @@ public:
 		std::thread swimmerFour(&Swimmer::swimming, swimmers[3]->get_this());
 		std::thread swimmerFive(&Swimmer::swimming, swimmers[4]->get_this());
 		std::thread swimmerSix(&Swimmer::swimming, swimmers[5]->get_this());
+		std::thread outputDistance(&Competitions::output_distance, this);
 
 		if (swimmerOne.joinable()) {
 			swimmerOne.join();
@@ -115,16 +136,10 @@ public:
 		if (swimmerSix.joinable()) {
 			swimmerSix.join();
 		}
-	}
-
-	bool end_swimming() {
-		for (int i = 0; i < numberSwimmers; i++) {
-			if (swimmers[i]->get_start()) {
-				return true;
-			}
+		if (outputDistance.joinable()) {
+			outputDistance.join();
 		}
-		std::cout << "\n";
-		return false;
+
 	}
 
 	void delete_swimmers() {
@@ -158,12 +173,8 @@ int main() {
 	bool finish = false;
 	std::cout << "\nSTART OF THE SWIM!!!\n\n";
 	competitions->swimming();
-	do {
-		finish = false;
-		finish = competitions->end_swimming();
-		std::cout << "\n";
-	} while (finish);
 	competitions->rezults();
+
 	competitions->delete_swimmers();
 	delete competitions;
 	competitions = nullptr;
