@@ -43,9 +43,9 @@ public:
 		} while (start);
 	}
 
-	Swimmer* get_this() {
-		return this;
-	}
+	//Swimmer* get_this() {
+	//	return this;
+	//}
 
 	bool get_start() {
 		return start;
@@ -110,36 +110,21 @@ public:
 	}
 
 	void swimming() {
-		std::thread swimmerOne(&Swimmer::swimming, swimmers[0]->get_this());
-		std::thread swimmerTwo(&Swimmer::swimming, swimmers[1]->get_this());
-		std::thread swimmerThree(&Swimmer::swimming, swimmers[2]->get_this());
-		std::thread swimmerFour(&Swimmer::swimming, swimmers[3]->get_this());
-		std::thread swimmerFive(&Swimmer::swimming, swimmers[4]->get_this());
-		std::thread swimmerSix(&Swimmer::swimming, swimmers[5]->get_this());
+		std::thread swimmerOne(&Swimmer::swimming, swimmers[0]);
+		std::thread swimmerTwo(&Swimmer::swimming, swimmers[1]);
+		std::thread swimmerThree(&Swimmer::swimming, swimmers[2]);
+		std::thread swimmerFour(&Swimmer::swimming, swimmers[3]);
+		std::thread swimmerFive(&Swimmer::swimming, swimmers[4]);
+		std::thread swimmerSix(&Swimmer::swimming, swimmers[5]);
 		std::thread outputDistance(&Competitions::output_distance, this);
 
-		if (swimmerOne.joinable()) {
-			swimmerOne.join();
-		}
-		if (swimmerTwo.joinable()) {
-			swimmerTwo.join();
-		}
-		if (swimmerThree.joinable()) {
-			swimmerThree.join();
-		}
-		if (swimmerFour.joinable()) {
-			swimmerFour.join();
-		}
-		if (swimmerFive.joinable()) {
-			swimmerFive.join();
-		}
-		if (swimmerSix.joinable()) {
-			swimmerSix.join();
-		}
-		if (outputDistance.joinable()) {
-			outputDistance.join();
-		}
-
+		swimmerOne.join();
+		swimmerTwo.join();
+		swimmerThree.join();
+		swimmerFour.join();
+		swimmerFive.join();
+		swimmerSix.join();
+		outputDistance.join();
 	}
 
 	void delete_swimmers() {
@@ -152,10 +137,10 @@ public:
 		Swimmer* swimmer;
 		for (int i = 0; i < numberSwimmers - 1; i++) {
 			for (int j = 0; j < numberSwimmers - i - 1; j++) {
-				if (swimmers[j]->get_rezult() > swimmers[static_cast<__int64>(j) + 1]->get_rezult()) {
+				if (swimmers[j]->get_rezult() > swimmers[j + 1]->get_rezult()) {
 					swimmer = swimmers[j];
-					swimmers[j] = swimmers[static_cast<__int64>(j) + 1];
-					swimmers[static_cast<__int64>(j) + 1] = swimmer;
+					swimmers[j] = swimmers[j + 1];
+					swimmers[j + 1] = swimmer;
 				}
 			}
 		}
