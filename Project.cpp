@@ -76,10 +76,6 @@ public:
 		}
 	}
 
-	Waiter* get_this() {
-		return this;
-	}
-
 	Order* get_orders(int i) {
 		if (i < 0 || i > orders.size()) {
 			return nullptr;
@@ -181,7 +177,6 @@ int main() {
 	std::thread acceptingOrders(&Waiter::accepting_orders, waiter);
 
 	std::thread productionOrders(&Courier::production_orders, courier, waiter);
-	productionOrders.detach();
 
 	std::thread deliveryOrders(&Courier::delivery_orders, courier, waiter);
 
