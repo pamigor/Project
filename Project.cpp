@@ -31,21 +31,30 @@ public:
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				distance += speed;
 				if (distance < 100) {
+					cout_swimmer.lock();
+					std::cout << get_name() << " swam " << get_distance() << " meters.\n";
+					cout_swimmer.unlock();
 					start = true;
 				}
 				else {
+					cout_swimmer.lock();
+					std::cout << get_name() << " finished.\n";
+					cout_swimmer.unlock();
 					start = false;
 				}
 			}
 			else {
+				cout_swimmer.lock();
+				std::cout << get_name() << " finished.\n";
+				cout_swimmer.unlock();
 				start = false;
 			}
 		} while (start);
 	}
 
-	//Swimmer* get_this() {
-	//	return this;
-	//}
+	Swimmer* get_this() {
+		return this;
+	}
 
 	bool get_start() {
 		return start;
@@ -83,32 +92,6 @@ public:
 		}
 	}
 
-	void output_distance() {
-		while (true) {
-			int counter = 0;
-			std::this_thread::sleep_for(std::chrono::milliseconds(1010));
-			for (int i = 0; i < numberSwimmers; i++) {
-				if (swimmers[i]->get_distance() < 100) {
-					cout_swimmer.lock();
-					std::cout << swimmers[i]->get_name() << " swam " << swimmers[i]->get_distance() << " meters.\n";
-					cout_swimmer.unlock();
-				}
-				else {
-					cout_swimmer.lock();
-					std::cout << swimmers[i]->get_name() << " finished.\n";
-					cout_swimmer.unlock();
-				}
-				if (swimmers[i]->get_start() == false) {
-					counter++;
-				}
-			}
-			std::cout << "\n";
-			if (counter == numberSwimmers) {
-				return;
-			}
-		}
-	}
-
 	void swimming() {
 		std::thread swimmerOne(&Swimmer::swimming, swimmers[0]);
 		std::thread swimmerTwo(&Swimmer::swimming, swimmers[1]);
@@ -116,7 +99,6 @@ public:
 		std::thread swimmerFour(&Swimmer::swimming, swimmers[3]);
 		std::thread swimmerFive(&Swimmer::swimming, swimmers[4]);
 		std::thread swimmerSix(&Swimmer::swimming, swimmers[5]);
-		std::thread outputDistance(&Competitions::output_distance, this);
 
 		swimmerOne.join();
 		swimmerTwo.join();
@@ -124,7 +106,6 @@ public:
 		swimmerFour.join();
 		swimmerFive.join();
 		swimmerSix.join();
-		outputDistance.join();
 	}
 
 	void delete_swimmers() {
