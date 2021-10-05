@@ -1,12 +1,9 @@
-﻿#include <cassert>
-#include <chrono>
+﻿#include <chrono>
 #include <ctime>
 #include <iostream>
-#include <iterator>
 #include <mutex>
 #include <string>
 #include <thread>
-#include <queue>
 #include <vector>
 
 std::mutex stopOrder;
@@ -31,10 +28,6 @@ public:
 
 	int get_number_order() {
 		return numberOrder;
-	}
-
-	Order* get_this() {
-		return this;
 	}
 
 	void set_status_order(std::string inStatusOrder) {
@@ -68,12 +61,11 @@ public:
 	}
 
 	void transfer_kitchen_order(int i) {
-		if (!orders.empty()) {
-			stopOrder.lock();
-			std::cout << orders[i]->get_number_order() << " the order has been transferred to the kitchen.\n";
-			orders[i]->set_status_order("production");
-			stopOrder.unlock();
-		}
+		while (orders.empty()) { };
+		stopOrder.lock();
+		std::cout << orders[i]->get_number_order() << " the order has been transferred to the kitchen.\n";
+		orders[i]->set_status_order("production");
+		stopOrder.unlock();
 	}
 
 	Order* get_orders(int i) {
@@ -124,16 +116,14 @@ class Courier {
 
 public:
 
-	void ready_orders(int i, Waiter* inWaiter) {
-			Kitchen* kitchen = new Kitchen();
-			kitchen->transfer_delivery_order(i, inWaiter);
-			delete kitchen;
+	void ready_orders(int i, Waiter* inWaiter, Kitchen* inKitchen) {
+		inKitchen->transfer_delivery_order(i, inWaiter);
 	}
 
-	void production_orders(Waiter* inWaiter) {
+	void production_orders(Waiter* inWaiter, Kitchen* inKitchen) {
 		int i = 0;
-		while (i < inWaiter->number_orders()) {
-			ready_orders(i, inWaiter);
+		while (true) {
+			ready_orders(i, inWaiter, inKitchen);
 			i++;
 		}
 	}
@@ -152,47 +142,41 @@ public:
 	}
 
 	void delivery_orders(Waiter* inWaiter) {
-		while (true) {
+		while (get_number_delivery_orders() < 11) {
 			delivery_ready_orders(inWaiter);
-			if (get_number_delivery_orders() >= 10) {
-				exit(0);
-			}
 		}
 	}
 
 	int get_number_delivery_orders() {
 		return numberDeliveryOrders;
 	}
-
-	Courier* get_this() {
-		return this;
-	}
 };
 
-int main() {
-	std::cout << "Id: " << std::this_thread::get_id() << "\n";
-	Waiter* waiter = new Waiter();
-	Courier* courier = new Courier();
+	int main() {
+		std::cout << "Id: " << std::this_thread::get_id() << "\n";
+		Waiter* waiter = new Waiter();
+		Kitchen* kitchen = new Kitchen();
+		Courier* courier = new Courier();
 
-	std::thread acceptingOrders(&Waiter::accepting_orders, waiter);
+		std::thread acceptingOrders(&Waiter::accepting_orders, waiter);
+		acceptingOrders.detach();
 
-	std::thread productionOrders(&Courier::production_orders, courier, waiter);
+		std::thread productionOrders(&Courier::production_orders, courier, waiter, kitchen);
+		productionOrders.detach();
 
-	std::thread deliveryOrders(&Courier::delivery_orders, courier, waiter);
+		std::thread deliveryOrders(&Courier::delivery_orders, courier, waiter);
 
-	if (acceptingOrders.joinable()) {
-		acceptingOrders.join();
-	}
-	if (productionOrders.joinable()) {
-		productionOrders.join();
-	}
-	if (deliveryOrders.joinable()) {
-		deliveryOrders.join();
-	}
-	
-	waiter->delete_orders();
-	delete waiter;
-	waiter = nullptr;
-	delete courier;
-	courier = nullptr;
+		if (deliveryOrders.joinable()) {
+			deliveryOrders.join();
+		}
+
+		waiter->delete_orders();
+		delete waiter;
+		waiter = nullptr;
+
+		delete kitchen;
+		kitchen = nullptr;
+
+		delete courier;
+		courier = nullptr;
 }
