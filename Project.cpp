@@ -4,6 +4,7 @@
 #include <climits>
 #include <cmath>
 #include <conio.h>
+#include <cpr/cpr.h>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>

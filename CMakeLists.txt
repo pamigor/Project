@@ -2,11 +2,19 @@ cmake_minimum_required(VERSION 3.19)
 project(Project)
 
 set(CMAKE_CXX_STANDARD 14)
-#set (MY_INC_DIR ${CMAKE_SOURCE_DIR}/Include)
 
-#add_subdirectory(src)
+set(BUILD_CPR_TESTS OFF)
+set(CPR_BUILD_TESTS_SSL OFF)
+set(CMAKE_USE_OPENSSL OFF)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+include(FetchContent)
+FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git GIT_TAG f4622efcb59d84071ae11404ae61bd821c1c344b) # the commit hash for 1.6.2
+FetchContent_MakeAvailable(cpr)
+
 add_executable(Project project.cpp)
 
 target_include_directories(Project PUBLIC Include)
-
+target_link_libraries(Project PRIVATE cpr::cpr)
 
