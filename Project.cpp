@@ -1,35 +1,68 @@
-﻿#include <algorithm>
-#include <cassert>
-#include <chrono>
-#include <climits>
-#include <cmath>
-#include <conio.h>
-#include <cstdio>
-#include <cstdlib>
-#include <ctime>
-#include <deque> 
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <iterator>
-#include <locale.h>
-#include <map>
-#include <math.h>
-#include <set>
-#include <stdlib.h>
-#include <sstream>
+﻿#include <iostream>
 #include <string>
-#include <thread>
-#include <vector>
-#include <cwchar>
-//#include <windows.h>
+#include <cpr/cpr.h>
 
-//using namespace std;
-//setlocale(LC_ALL, "RUS");
-//SetConsoleCP(1251);
-//SetConsoleOutputCP(1251);
-//#pragma warning(disable : 4996)
+
+class Dog;
+class Cat;
+
+class Animal {
+
+public:	
+	virtual void meeting(Animal* a) = 0;	
+	virtual void meeting(Cat* a) = 0;	
+	virtual void meeting(Dog* a) = 0;	
+};
+
+class Dog : public Animal {
+public:
+	virtual void meeting(Cat* a) {
+		std::cout << "Meow Bark\n";
+	};
+
+	virtual void meeting(Dog* a) {
+		std::cout << "Woof Woof\n";
+	};
+
+	virtual void meeting(Animal* a) {
+		a->meeting(this);
+	};
+};
+
+class Cat : public Animal {
+public:
+	virtual void meeting(Dog* a) {
+		std::cout << "Bark Meow\n";
+	};
+
+	virtual void meeting(Cat* a) {
+		std::cout << "Purr Purr\n";
+	};
+
+	virtual void meeting(Animal* a) {
+		a->meeting(this);
+	};
+};
+
+void meeting(Animal* a, Animal* b) {
+	a->meeting(b);
+};
 
 int main() {
-	std::cout << "Hello";
+	Animal* a = new Dog();
+	Animal* b = new Cat();
+	Animal* c = new Cat();
+	Animal* d = new Dog();
+
+	meeting(a, d);
+	meeting(a, b);
+	meeting(b, a);
+	meeting(b, c);
+	std::cout << "\n";
+
+	delete a;
+	delete b;
+	delete c;
+	delete d;
+
 }
