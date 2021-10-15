@@ -23,14 +23,9 @@
 #include <thread>
 #include <vector>
 #include <cwchar>
-//#include <windows.h>
-
-//using namespace std;
-//setlocale(LC_ALL, "RUS");
-//SetConsoleCP(1251);
-//SetConsoleOutputCP(1251);
-//#pragma warning(disable : 4996)
 
 int main() {
-	std::cout << "Hello";
+	cpr::Response r = cpr::Get(cpr::Url("http://httpbin.org/accept:text/html")/*,
+		cpr::Header({"accept", "text/html"})*/);
+	std::cout << r.text << "\n";
 }
