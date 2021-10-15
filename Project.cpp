@@ -24,22 +24,22 @@ int main() {
 		}
 
 		else if (command == "post") {
-			cpr::Response r = cpr::Get(cpr::Url("https://httpbin.org/post"));
+			cpr::Response r = cpr::Post(cpr::Url("https://httpbin.org/post"));
 			std::cout << r.text << "\n";
 		}
 		
 		else if (command == "put") {
-			cpr::Response r = cpr::Get(cpr::Url("https://httpbin.org/put"));
+			cpr::Response r = cpr::Put(cpr::Url("https://httpbin.org/put"));
 			std::cout << r.text << "\n";
 		}
 		
 		else if (command == "delete") {
-			cpr::Response r = cpr::Get(cpr::Url("https://httpbin.org/delete"));
+			cpr::Response r = cpr::Delete(cpr::Url("https://httpbin.org/delete"));
 			std::cout << r.text << "\n";
 		}
 		
 		else if (command == "patch") {
-			cpr::Response r = cpr::Get(cpr::Url("https://httpbin.org/patch"));
+			cpr::Response r = cpr::Patch(cpr::Url("https://httpbin.org/patch"));
 			std::cout << r.text << "\n";
 		}
 
