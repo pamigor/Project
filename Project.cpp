@@ -37,17 +37,15 @@ int main() {
 	
 	if (!argument.empty()) {
 		if (titleOne == "get") {
-			cpr::Response r;
 			for (int i = 0; i < argument.size(); i++) {
-				r = cpr::Get(cpr::Url{ "https://httpbin.org/get" },
-					cpr::Parameters{ {argument[0]->get_title(), argument[0]->get_meaning() } });
+				cpr::Response r = cpr::Get(cpr::Url{ "https://httpbin.org/get" },
+					cpr::Parameters{ {argument[i]->get_title(), argument[i]->get_meaning() } });
 				std::cout << r.text << "\n";
 			}
 		}
 		else if (titleOne == "post") {
-			cpr::Response r;
 			for (int i = 0; i < argument.size(); i++) {
-				r = cpr::Post(cpr::Url("https://httpbin.org/post"),
+				cpr::Response r = cpr::Post(cpr::Url("https://httpbin.org/post"),
 					cpr::Payload({ {argument[i]->get_title().c_str(), argument[i]->get_meaning().c_str()} }));
 				std::cout << r.text << "\n";
 			}
