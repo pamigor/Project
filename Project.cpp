@@ -1,36 +1,63 @@
-﻿#include <algorithm>
-#include <cassert>
-#include <chrono>
-#include <climits>
-#include <cmath>
-#include <conio.h>
-#include <cpr/cpr.h>
-#include <cstdio>
-#include <cstdlib>
-#include <ctime>
-#include <deque> 
-#include <fstream>
-#include <iomanip>
+﻿#include <cpr/cpr.h>
 #include <iostream>
-#include <iterator>
-#include <locale.h>
-#include <map>
-#include <math.h>
-#include <set>
-#include <stdlib.h>
-#include <sstream>
 #include <string>
-#include <thread>
 #include <vector>
-#include <cwchar>
-//#include <windows.h>
 
-//using namespace std;
-//setlocale(LC_ALL, "RUS");
-//SetConsoleCP(1251);
-//SetConsoleOutputCP(1251);
-//#pragma warning(disable : 4996)
+class Request {
+	std::string title;
+	std::string meaning;
 
+public:
+
+	Request(std::string inTitle, std::string inMeaning) : title(inTitle), meaning(inMeaning) {}
+
+	std::string get_title() {
+		return title;
+	}
+	
+	std::string get_meaning() {
+		return meaning;
+	}
+};
 int main() {
-	std::cout << "Hello";
+	std::vector<Request*> argument;
+	std::string titleOne, meaningOne;
+
+	while (true) {
+		std::cout << "Enter the name of the argument: ";
+		std::cin >> titleOne;
+		if (titleOne == "get" || titleOne == "post") {
+			break;
+		}
+		std::cout << "Enter the value of the argument: ";
+		std::cin >> meaningOne;
+		Request* request = new Request(titleOne, meaningOne);
+		argument.push_back(request);
+	};
+	
+	if (!argument.empty()) {
+		if (titleOne == "get") {
+			cpr::Response r;
+			for (int i = 0; i < argument.size(); i++) {
+				r = cpr::Get(cpr::Url{ "https://httpbin.org/get" },
+					cpr::Parameters{ {argument[0]->get_title(), argument[0]->get_meaning() } });
+				std::cout << r.text << "\n";
+			}
+		}
+		else if (titleOne == "post") {
+			cpr::Response r;
+			for (int i = 0; i < argument.size(); i++) {
+				r = cpr::Post(cpr::Url("https://httpbin.org/post"),
+					cpr::Payload({ {argument[i]->get_title().c_str(), argument[i]->get_meaning().c_str()} }));
+				std::cout << r.text << "\n";
+			}
+		}
+
+		for (int i = 0; i < argument.size(); i++) {
+			delete argument[i];
+		}
+	}
+	else {
+		std::cout << "No arguments entered!\n";
+	}
 }
