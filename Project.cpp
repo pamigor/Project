@@ -1,34 +1,6 @@
-﻿#include <algorithm>
-#include <cassert>
-#include <chrono>
-#include <climits>
-#include <cmath>
-#include <conio.h>
-#include <cpr/cpr.h>
-#include <cstdio>
-#include <cstdlib>
-#include <ctime>
-#include <deque> 
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <iterator>
-#include <locale.h>
-#include <map>
-#include <math.h>
-#include <set>
-#include <stdlib.h>
-#include <sstream>
+﻿#include <iostream>
 #include <string>
-#include <thread>
 #include <vector>
-#include <cwchar>
-typedef unsigned short WORD;
-
-class EdgeGraph;
-class SetGraph;
-class ListGraph;
-class MatrixGraph;
 
 class IGraph {
 
@@ -37,73 +9,49 @@ public:
     virtual ~IGraph() {}
     IGraph() {};
     IGraph(IGraph* inOther) {};
-    virtual void add_edge(int from, int to) = 0; // Метод принимает вершины начала и конца ребра и добавляет ребро
-    virtual int VerticesCount() const = 0; // Метод должен считать текущее количество вершин
-    virtual void GetNextVertices(int vertex, std::vector<int>& vertices) const = 0; 
-    // Для конкретной вершины метод выводит в вектор “вершины” все вершины, в которые можно дойти по ребру из данной
-    virtual void GetPrevVertices(int vertex, std::vector<int>& vertices) const = 0; 
-    // Для конкретной вершины метод выводит в вектор “вершины” все вершины, из которых можно дойти по ребру в данную
-    virtual int get_vertex_number() const = 0;
-};
-
-template <class A>
-class List {
-    friend EdgeGraph* convert(const ListGraph& srcGraph) {};
-
-    struct ListItem {
-        A item;
-        ListItem* next;
-        ListItem(const A& inItem, LIstItem* inNext = NULL) : item(inItem), next(inNext) {}
-    };
-
-    ListItem* first, *last;
-    int listCount;
-
-public:
-
-    List() {
-        first = last = NULL;
-    }
-
-    ~List() {};
-
-    void add(const A& item) {
-        LIstItem* newItem = new LIstItem(item);
-        if (last) {
-            last->next = newItem;
-        }
-        else {
-            first = newItem;
-        }
-        last = newItem;
-        listCount++;
-    }
-
-    bool has(const A& item) const {
-        for (LIstItem* current = first; current; current = current->next) {
-            if (current->item == item) {
-                return true;
-            }
-        }
-        return false;
-    }
+    virtual void add_edge(int from, int to) = 0; 
+    virtual bool has_edge(int from, int to) const = 0; 
+    virtual int vertices_count() const = 0; 
+    virtual void get_next_vertices(int vertex, std::vector<int>& vertices) const = 0; 
+    virtual void get_prev_vertices(int vertex, std::vector<int>& vertices) const = 0; 
 };
 
 class ListGraph : public IGraph {
-    friend ListGraph* convert(const SetGraph& srcGraph) {};
-    friend EdgeGraph* convert(const ListGraph& srcGraph) {};
-    List<int>* graph;
+    std::vector<std::vector<int>> lgraph;
     int vertexNumber;
 
 public:
 
-    ListGraph(int n) : vertexNumber(n), graph(new List<int>[n]) {}
-
-    ~ListGraph() {
-        delete graph;
+    ListGraph(int n) {
+        vertexNumber = n;
+        for (int i = 0; i < n; i++) {
+            std::vector<int>* list = new std::vector<int>;
+            lgraph.push_back(*list);
+        }
     }
 
-    int get_vertex_number() const {
+    ListGraph(const ListGraph& inOther) {
+        lgraph = inOther.lgraph;
+        vertexNumber = inOther.vertexNumber;
+    }
+
+    ListGraph& operator = (const ListGraph& inOther) {
+        if (this == &inOther) {
+            return *this;
+        }
+        lgraph = inOther.lgraph;
+        vertexNumber = inOther.vertexNumber;
+        return *this;
+    }
+
+    ListGraph(ListGraph* inOther) {
+        lgraph = inOther->lgraph;
+        vertexNumber = inOther->vertexNumber;
+    }
+
+    ~ListGraph() {}
+
+    int vertices_count() const {
         return vertexNumber;
     }
 
@@ -111,43 +59,112 @@ public:
         if (from < 0 || from >= vertexNumber || to < 0 || to >= vertexNumber) {
             return;
         }
-        graph[from].add(to);
+        lgraph[from].push_back(to);
     }
 
     bool has_edge(int from, int to) const {
         if (from < 0 || from >= vertexNumber || to < 0 || to >= vertexNumber) {
             return false;
         }
-        return graph[from].has(to);
+        if (!lgraph[from].empty()) {
+            for (int i = 0; i < lgraph[from].size(); i++) {
+                if (lgraph[from][i] == to) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    void get_next_vertices(int vertex, std::vector<int>& vertices) const {
+        if (vertex < 0 || vertex >= vertexNumber) {
+            std::cout << "\nThere is no vertex with this number!\n";
+            return;
+        }
+        for (int i = 0; i < lgraph[vertex].size(); i++) {
+            vertices.push_back(lgraph[vertex][i]);
+            std::cout << lgraph[vertex][i] << " ";
+        }
+        std::cout << "\n";
+    }
+
+    void get_prev_vertices(int vertex, std::vector<int>& vertices) const {
+        if (vertex < 0 || vertex >= vertexNumber) {
+            std::cout << "\nThere is no vertex with this number!\n";
+            return;
+        }
+        for (int i = 0; i < vertexNumber; i++) {
+            for (int j = 0; j < lgraph[i].size(); j++) {
+                if (lgraph[i][j] == vertex) {
+                    vertices.push_back(i);
+                    std::cout << i << " ";
+                }
+            }
+        }
+        std::cout << "\n";
+
     }
 };
 
 class MatrixGraph : public IGraph {
-    friend MatrixGraph* convert(const EdgeGraph& srcGraph) {};
-    friend SetGraph* convert(const MatrixGraph& srcGraph) {};
-    bool** graph;
+    bool** mgraph;
     int vertexNumber;
 
 public:
 
     MatrixGraph(int n) {
-        graph = new bool* [vertexNumber = n];
+        mgraph = new bool* [vertexNumber = n];
         for (int i = 0; i < n; i++) {
-            bool* row = graph[i] = new bool[n];
+            bool* row = mgraph[i] = new bool[n];
             for (int j = 0; j < n; j++) {
                 row[j] = false;
             }
         }
     }
 
+    MatrixGraph(const MatrixGraph& inOther) {
+        mgraph = new bool* [inOther.vertexNumber];
+        for (int i = 0; i < inOther.vertexNumber; i++) {
+            mgraph[i] = new bool[inOther.vertexNumber];
+        }
+        for (int i = 0; i < inOther.vertexNumber; i++) {
+            for (int j = 0; j < inOther.vertexNumber; j++) {
+                mgraph[i][j] = inOther.mgraph[i][j];
+            }
+        }
+        vertexNumber = inOther.vertexNumber;
+    }
+
+    MatrixGraph& operator = (const MatrixGraph& inOther) {
+        if (this == &inOther) {
+            return *this;
+        }
+        mgraph = new bool* [inOther.vertexNumber];
+        for (int i = 0; i < inOther.vertexNumber; i++) {
+            mgraph[i] = new bool[inOther.vertexNumber];
+        }
+        for (int i = 0; i < inOther.vertexNumber; i++) {
+            for (int j = 0; j < inOther.vertexNumber; j++) {
+                mgraph[i][j] = inOther.mgraph[i][j];
+            }
+        }
+        vertexNumber = inOther.vertexNumber;
+        return *this;
+    }
+
+    MatrixGraph(MatrixGraph* inOther) {
+        mgraph = inOther->mgraph;
+        vertexNumber = inOther->vertexNumber;
+    }
+
     ~MatrixGraph() {
         for (int i = 0; i < vertexNumber; i++) {
-            delete graph[i];
+            delete mgraph[i];
         }
-        delete graph;
+        delete mgraph;
     }
 
-    int get_vertex_number() const {
+    int vertices_count() const {
         return vertexNumber;
     }
 
@@ -155,194 +172,98 @@ public:
         if (from < 0 || from >= vertexNumber || to < 0 || to >= vertexNumber) {
             return;
         }
-        graph[from][to] = true;
+        mgraph[from][to] = true;
     }
 
     bool has_edge(int from, int to) const {
         if (from < 0 || from >= vertexNumber || to < 0 || to >= vertexNumber) {
             return false;
         }
-        return graph[from][to];
+        return mgraph[from][to];
     }
-};
 
-class Set {
-    int minElement;
-    int maxElement;
-    WORD* elements;
-    int numWords;
-
-    friend const Set& operator | (const Set& s1, const Set& s2) {};
-    friend const Set& operator & (const Set& s1, const Set& s2) {};
-    friend const Set& operator - (const Set& s1, const Set& s2) {};
-    friend const Set& operator - (const Set& s) {};
-
-public:
-
-    Set(int min = 0, int max = 255) {};
-    Set(const Set& s) {};
-    ~Set() {};
-
-    bool has(int n) const {};
-    Set& operator |= (int n) {};
-    Set& operator |= (const Set& other) {};
-    Set& operator &= (const Set& other) {};
-    Set& operator -= (int n) {};
-    Set& operator -= (const Set& other) {};
-    Set& inverse() {};
-};
-
-class SetGraph : public IGraph {
-    friend SetGraph* convert(const MatrixGraph& srcGraph) {};
-    friend ListGraph* convert(const SetGraph& srcGraph) {};
-    Set** graph;
-    int vertexNumber;
-
-public:
-
-    SetGraph(int n) : vertexNumber(n), graph(new Set*[n]) {
-        for (int i = 0; i < n; i++) {
-            graph[i] = new Set(0, n);
+    virtual void get_next_vertices(int vertex, std::vector<int>& vertices) const {
+        if (vertex < 0 || vertex >= vertexNumber) {
+            std::cout << "\nThere is no vertex with this number!\n";
+            return;
         }
-    }
-
-    ~SetGraph() {
         for (int i = 0; i < vertexNumber; i++) {
-            delete graph[i];
+            if (mgraph[vertex][i]) {
+                vertices.push_back(i);
+                std::cout << i << " ";
+            }
         }
-        delete graph;
+        std::cout << "\n";
     }
 
-    int get_vertex_number() const {
-        return vertexNumber;
-    }
-
-    void add_edge(int from, int to) {
-        if (from < 0 || from >= vertexNumber || to < 0 || to >= vertexNumber) {
+    void get_prev_vertices(int vertex, std::vector<int>& vertices) const {
+        if (vertex < 0 || vertex >= vertexNumber) {
+            std::cout << "\nThere is no vertex with this number!\n";
             return;
         }
-        *graph[from] |= to;
-    }
-
-    bool has_edge(int from, int to) const {
-        if (from < 0 || from >= vertexNumber || to < 0 || to >= vertexNumber) {
-            return false;
+        for (int i = 0; i < vertexNumber; i++) {
+            if (mgraph[i][vertex]) {
+                vertices.push_back(i);
+                std::cout << i << " ";
+            }
         }
-        return graph[from]->has(to);
+        std::cout << "\n";
     }
 };
 
-class EdgeGraph : public IGraph {
-    friend MatrixGraph* convert(const EdgeGraph& srcGraph) {}
 
-    struct Edge {
-        int begin, end;
-        Edge* next;
-        Edge(int inBegin, int inEnd, Edge* inNext = NULL) : begin(inBegin), end(inEnd), next(inNext) {}
-    };
-    Edge* first, *last;
-    int edgeCount;
-    int vertexNumber;
-    friend MatrixGraph* convert(const EdgeGraph& srcGraph) {}
-
-public:
-
-    EdgeGraph(int n) : first(0), last(0), edgeCount(0), vertexNumber(n) {}
-    
-    /*virtual*/ ~EdgeGraph() {
-        Edge* current = first, * prev = NULL;
-        while (current) {
-            prev = current;
-            current = current->next;
-            delete prev;
-        }
-    }
-
-    int get_vertex_number() const {
-        return vertexNumber;
-    }
-
-    Edge* get_first() {
-        return first;
-    }
-
-    void add_edge(int from, int to) {
-        if (from < 0 || from >= vertexNumber || to < 0 || to >= vertexNumber) {
-            return;
-        }
-        Edge* newEdge = new Edge(from, to);
-        if (last) {
-            last->next = newEdge;
-        }
-        else {
-            first = newEdge;
-        }
-        last = newEdge;
-        edgeCount++;
-    }
-
-    bool has_edge(int from, int to) const {
-        for (Edge* current = first; current; current = current->next) {
-            if (current->begin == from && current->end == to) {
-                return true;
-            }
-        }
-        return false;
-    }
-};
-
-MatrixGraph* convert(const EdgeGraph& srcGraph) {
-    int n = srcGraph.get_vertex_number();
-    MatrixGraph* destGraph = new MatrixGraph(n);
-    for (EdgeGraph::Edge* current = srcGraph.first; current; current = current->next) {
-        destGraph->graph[current->begin][current->end] = true;
-    }
-    return destGraph;
-}
-
-SetGraph* convert(const MatrixGraph& srcGraph) {
-    int n = srcGraph.get_vertex_number();
-    SetGraph* destGraph = new SetGraph(n);
+void print_graph(const IGraph& g) {
+    int n = g.vertices_count();
     for (int i = 0; i < n; i++) {
-        bool* srcRow = srcGraph.graph[i];
-        Set& destRow = *destGraph->graph[i];
         for (int j = 0; j < n; j++) {
-            if (srcRow[j]) {
-                destRow |= j;
-            }
+            std::cout << (g.has_edge(i, j) ? '1' : '0') << " ";
         }
+        std::cout << "\n";
     }
-    return destGraph;
-}
-
-ListGraph* convert(const SetGraph& srcGraph) {
-    int n = srcGraph.get_vertex_number();
-    ListGraph* destGraph = new ListGraph(n);
-    for (int i = 0; i < n; i++) {
-        Set* srcRow = *srcGraph.graph[i];
-        List<int>& destRow = destGraph->graph[i];
-        for (int j = 0; j < n; j++) {
-            if (srcRow.has(j)) {
-                destRow.add(j);
-            }
-        }
-    }
-    return destGraph;
-}
-
-EdgeGraph* convert(const ListGraph& srcGraph) {
-    int n = srcGraph.get_vertex_number();
-    EdgeGraph* destGraph = new EdgeGraph(n);
-    for (int i = 0; i < n; i++) {
-        List<int>::ListItem* current = srcGrapf.graph[i].first;
-        while (current) {
-            destGraph->add_edge(i, current->item);
-            current = current->next;
-        }
-    }
-    return destGraph;
+    std::cout << "\n";
 }
 
 int main() {
-	std::cout << "Hello";
+    std::vector<int> vertices;
+
+    ListGraph listGraph(5);
+    listGraph.add_edge(0, 1);
+    listGraph.add_edge(0, 3);
+    listGraph.add_edge(1, 2);
+    listGraph.add_edge(1, 3);
+    listGraph.add_edge(1, 4);
+    listGraph.add_edge(3, 2);
+    listGraph.add_edge(4, 1);
+    listGraph.add_edge(4, 4);
+    std::cout << "Initial ListGraph:\n\n";
+    print_graph(listGraph);
+    listGraph.get_next_vertices(1, vertices);
+    listGraph.get_prev_vertices(2, vertices);
+    std::cout << "\n";
+
+
+    MatrixGraph matrixGraph(5);
+    matrixGraph.add_edge(0, 1);
+    matrixGraph.add_edge(0, 3);
+    matrixGraph.add_edge(1, 2);
+    matrixGraph.add_edge(1, 3);
+    matrixGraph.add_edge(1, 4);
+    matrixGraph.add_edge(3, 2);
+    matrixGraph.add_edge(4, 1);
+    matrixGraph.add_edge(4, 4);
+    std::cout << "Initial MatrixGraph:\n\n";
+    print_graph(matrixGraph);
+    matrixGraph.get_next_vertices(1, vertices);
+    matrixGraph.get_prev_vertices(2, vertices);
+    std::cout << "\n";
+
+    MatrixGraph matrixGraph1(1);
+    matrixGraph1 = MatrixGraph(matrixGraph);
+
+    matrixGraph.add_edge(0, 4);
+
+    print_graph(matrixGraph);
+    print_graph(matrixGraph1);
+
+
 }
