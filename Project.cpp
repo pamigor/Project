@@ -11,44 +11,26 @@ public:
 	~Toy() {}
 };
 
-class Counter {
-	int number = 0;
-
-public:
-
-	int get_number() {
-		return number;
-	}
-
-	void add_number() {
-		number++;
-	}
-
-	void substruct_number() {
-		number--;
-	}
-};
-
 class Shared_ptr_toy {
 	Toy* pointer;
-	Counter* counter;
+	int* counter;
 
 public:
 
 	Shared_ptr_toy() {
 		pointer = new Toy();
-		counter = new Counter();
+		counter = new int(1);
 	}
 	
 	Shared_ptr_toy(std::string name) {
 		pointer = new Toy(name);
-		counter = new Counter();
+		counter = new int(1);
 	}
 
 	Shared_ptr_toy(const Shared_ptr_toy& other) {
-		pointer = new Toy(*other.pointer);
+		pointer = other.pointer;
 		counter = other.counter;
-		counter->add_number();
+		*counter++;
 	}
 
 	Shared_ptr_toy& operator = (const Shared_ptr_toy& other) {
@@ -56,18 +38,21 @@ public:
 			return *this;
 		}
 		if (pointer != nullptr) {
-			delete pointer;
+			*counter--;
+			if (*counter == 0) {
+				delete pointer;
+				delete counter;
+			}
 		}
-		counter->substruct_number();
-		pointer = new Toy(*other.pointer);
+		pointer = other.pointer;
 		counter = other.counter;
-		counter->add_number();
+		*counter++;
 		return *this;
 	}
 
 	~Shared_ptr_toy() {
-		counter->substruct_number();
-		if (counter->get_number() == 0) {
+		*counter--;
+		if (*counter == 0) {
 			delete pointer;
 			delete counter;
 		}
