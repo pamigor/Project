@@ -16,6 +16,7 @@
 #include <locale.h>
 #include <map>
 #include <math.h>
+#include <nlohmann/json.hpp>
 #include <set>
 #include <stdlib.h>
 #include <sstream>
