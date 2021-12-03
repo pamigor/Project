@@ -1,4 +1,5 @@
 ﻿#include <algorithm>
+#include <boost/asio.hpp>
 #include <cassert>
 #include <chrono>
 #include <climits>
@@ -9,6 +10,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <deque> 
+#include <exception>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
